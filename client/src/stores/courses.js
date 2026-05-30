@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { supabase } from '../lib/supabase'
 
 export const useCoursesStore = defineStore('courses', {
   state: () => ({
@@ -11,9 +12,14 @@ export const useCoursesStore = defineStore('courses', {
       this.loading = true
       this.error = null
       try {
-        const res = await fetch('/api/courses')
-        if (!res.ok) throw new Error('加载课程失败')
-        this.courses = await res.json()
+        const { data, error } = await supabase
+          .from('courses')
+          .select('*, videos(*)')
+          .eq('is_published', true)
+          .order('sort_order', { ascending: true })
+
+        if (error) throw new Error(error.message)
+        this.courses = data
       } catch (e) {
         this.error = e.message
       } finally {

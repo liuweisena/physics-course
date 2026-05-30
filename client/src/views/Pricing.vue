@@ -15,8 +15,8 @@
           <li>课程答疑评论区</li>
           <li>随时取消</li>
         </ul>
-        <button class="btn-buy secondary" @click="buy('price_monthly')" :disabled="loading">
-          {{ loading ? '跳转中...' : '立即订阅' }}
+        <button class="btn-buy secondary" @click="handleBuy">
+          立即订阅
         </button>
       </div>
 
@@ -32,8 +32,8 @@
           <li>课程答疑评论区</li>
           <li><strong>赠送：</strong>1次1对1线上辅导</li>
         </ul>
-        <button class="btn-buy primary" @click="buy('price_yearly')" :disabled="loading">
-          {{ loading ? '跳转中...' : '立即订阅' }}
+        <button class="btn-buy primary" @click="handleBuy">
+          立即订阅
         </button>
       </div>
     </div>
@@ -41,37 +41,15 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import { useAuthStore } from '../stores/auth'
 
 const auth = useAuthStore()
-const loading = ref(false)
 
-async function buy(priceId) {
+function handleBuy() {
   if (!auth.user) {
     alert('请先登录')
     return
   }
-
-  loading.value = true
-  try {
-    const res = await fetch('/api/payment/create-checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        priceId,
-        userId: auth.user.id,
-        successUrl: window.location.origin + '/member',
-        cancelUrl: window.location.origin + '/pricing',
-      })
-    })
-    const data = await res.json()
-    if (data.url) window.location.href = data.url
-    else alert('创建支付失败，请重试')
-  } catch (e) {
-    alert('支付服务暂不可用: ' + e.message)
-  } finally {
-    loading.value = false
-  }
+  alert('支付功能接入中，请先联系老师微信购买')
 }
 </script>

@@ -1,0 +1,7 @@
+[build]
+  command = "cd client && npm install && npm run build"
+  publish = "client/dist"
+
+[build.environment]
+  VITE_SUPABASE_URL = "https://ftcdtxzxrsufgtqfpfre.supabase.co"
+  VITE_SUPABASE_ANON_KEY = "sb_publishable_KrGT5IrPl9CfEIVz7VAzZQ_-MW8Qtow"

@@ -21,16 +21,17 @@ export const useAuthStore = defineStore('auth', {
       }
     },
     async fetchSubscription() {
-      const token = (await supabase.auth.getSession()).data.session?.access_token
-      if (!token) return
-      const res = await fetch('/api/auth/me', {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      if (res.ok) {
-        const data = await res.json()
-        this.hasActiveSubscription = data.hasActiveSubscription
-        this.subscription = data.subscription
-      }
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+
+      const { data: sub } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('status', 'active')
+        .maybeSingle()
+
+      this.hasActiveSubscription = !!sub
+      this.subscription = sub
       this.loading = false
     },
     async login(email, password) {
