@@ -9,8 +9,7 @@ exports.handler = async (event) => {
 
   try {
     const session = await stripe.checkout.sessions.create({
-      mode: 'payment',
-      payment_method_types: ['card', 'alipay'],
+      mode: 'subscription',
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: successUrl,
       cancel_url: cancelUrl,
