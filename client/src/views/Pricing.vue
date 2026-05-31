@@ -15,7 +15,7 @@
           <li>课程答疑评论区</li>
           <li>随时取消</li>
         </ul>
-        <button class="btn-buy secondary" @click="buy('price_monthly')" :disabled="loading">
+        <button class="btn-buy secondary" @click="buy('price_1Td24AFz8g1hrumJcd2gTpAh')" :disabled="loading">
           {{ loading ? '跳转中...' : '立即订阅' }}
         </button>
       </div>
@@ -32,7 +32,7 @@
           <li>课程答疑评论区</li>
           <li><strong>赠送：</strong>1次1对1线上辅导</li>
         </ul>
-        <button class="btn-buy primary" @click="buy('price_yearly')" :disabled="loading">
+        <button class="btn-buy primary" @click="buy('price_1Td26TFz8g1hrumJ45Vl1TUI')" :disabled="loading">
           {{ loading ? '跳转中...' : '立即订阅' }}
         </button>
       </div>
