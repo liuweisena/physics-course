@@ -1,11 +1,20 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const { createClient } = require('@supabase/supabase-js');
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY,
-  { auth: { persistSession: false }, realtime: { enabled: false } }
-);
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
+
+function supabaseAPI(path, method, body) {
+  return fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Prefer': 'return=minimal',
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+}
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
@@ -25,13 +34,11 @@ exports.handler = async (event) => {
     return { statusCode: 400, body: `Webhook Error: ${err.message}` };
   }
 
-  // 支付成功 → 写入订阅记录
   if (stripeEvent.type === 'checkout.session.completed') {
     const session = stripeEvent.data.object;
-    const userId = session.client_reference_id;
 
-    await supabase.from('subscriptions').upsert({
-      user_id: userId,
+    await supabaseAPI('subscriptions', 'POST', {
+      user_id: session.client_reference_id,
       stripe_customer_id: session.customer,
       stripe_subscription_id: session.subscription,
       status: 'active',
@@ -40,13 +47,11 @@ exports.handler = async (event) => {
     });
   }
 
-  // 用户取消订阅 → 标记为取消
   if (stripeEvent.type === 'customer.subscription.deleted') {
     const sub = stripeEvent.data.object;
-    await supabase
-      .from('subscriptions')
-      .update({ status: 'canceled' })
-      .eq('stripe_subscription_id', sub.id);
+    await supabaseAPI(`subscriptions?stripe_subscription_id=eq.${sub.id}`, 'PATCH', {
+      status: 'canceled',
+    });
   }
 
   return { statusCode: 200, body: JSON.stringify({ received: true }) };
