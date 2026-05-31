@@ -28,6 +28,8 @@ export const useAuthStore = defineStore('auth', {
         .from('subscriptions')
         .select('*')
         .eq('status', 'active')
+        .order('created_at', { ascending: false })
+        .limit(1)
         .maybeSingle()
 
       this.hasActiveSubscription = !!sub
