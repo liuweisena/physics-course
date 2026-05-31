@@ -1,11 +1,21 @@
 <template>
   <div class="video-player">
     <div class="video-wrapper">
+      <!-- B站 -->
       <iframe
+        v-if="isBilibili"
         :src="embedUrl"
         frameborder="0"
         allowfullscreen
         allow="autoplay; encrypted-media"
+      />
+      <!-- 自己的视频 -->
+      <video
+        v-else
+        :src="url"
+        controls
+        controlslist="nodownload"
+        playsinline
       />
     </div>
     <div class="video-info">
@@ -24,14 +34,13 @@ const props = defineProps({
   description: { type: String, default: '' }
 })
 
+const isBilibili = computed(() => props.url.includes('bilibili.com'))
+
 const embedUrl = computed(() => {
-  // B站: https://www.bilibili.com/video/BVxxx?p=1 → //player.bilibili.com/player.html?bvid=BVxxx&page=1
-  if (props.url.includes('bilibili.com/video/')) {
-    const bvid = props.url.match(/video\/(BV\w+)/)?.[1]
-    const page = props.url.match(/[?&]p=(\d+)/)?.[1] || '1'
-    if (bvid) return `//player.bilibili.com/player.html?bvid=${bvid}&page=${page}&high_quality=1`
-  }
-  // 抖音 or direct URL, return as-is
-  return props.url
+  if (!isBilibili.value) return props.url
+  const bvid = props.url.match(/video\/(BV\w+)/)?.[1]
+  const page = props.url.match(/[?&]p=(\d+)/)?.[1] || '1'
+  if (!bvid) return props.url
+  return `//player.bilibili.com/player.html?bvid=${bvid}&page=${page}&high_quality=1&danmaku=0&autoplay=0`
 })
 </script>
